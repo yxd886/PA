@@ -38,6 +38,8 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 static int cmd_si(char *args);
+static int cmd_info(char *args);
+
 
 
 static struct {
@@ -48,7 +50,8 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
-	{ "si", "Exit NEMU", cmd_si },
+	{ "si", "Single Step", cmd_si },
+	{ "info", "Print the State of the Program ", cmd_info },
 
 	/* TODO: Add more commands */
 
@@ -101,6 +104,37 @@ static int cmd_si(char *args)
 	return 0;
      }
 
+static int cmd_info(char *args) 
+	{
+	/* extract the first argument */
+	char* arg = strtok(NULL, " ");
+
+	if(arg == NULL) 
+		{
+		/* no argument given */
+		printf("Unknown command '%s'\n",args );	
+	    return 0;
+		}
+	
+	else 
+		{
+		if(arg[0]=='r') 
+	    printf("eax=0x%x\n ",cpu.eax);
+		printf("ecx=0x%x\n ",cpu.ecx);
+		printf("edx=0x%x\n ",cpu.edx);
+		printf("ebx=0x%x\n ",cpu.ebx);
+		printf("esp=0x%x\n ",cpu.esp);
+		printf("ebp=0x%x\n ",cpu.ebp);
+		printf("esi=0x%x\n ",cpu.esi);
+		printf("edi=0x%x\n ",cpu.edi);
+		printf("eip=0x%x\n ",cpu.eip);
+		printf("ax=0x%x\n ",(cpu.eax&0x0000ffff));
+			
+		}
+		printf("Unknown command '%s'\n",args );
+	
+	return 0;
+     }
 
 void ui_mainloop() {
 	while(1) {
