@@ -119,7 +119,7 @@ static int cmd_info(char *args)
 	else 
 		{
 		if(arg[0]=='r') 
-	    printf("eax=0x%x\n ",cpu.eax);
+	    printf(" eax=0x%x\n ",cpu.eax);
 		printf("ecx=0x%x\n ",cpu.ecx);
 		printf("edx=0x%x\n ",cpu.edx);
 		printf("ebx=0x%x\n ",cpu.ebx);
@@ -129,6 +129,14 @@ static int cmd_info(char *args)
 		printf("edi=0x%x\n ",cpu.edi);
 		printf("eip=0x%x\n ",cpu.eip);
 		printf("ax=0x%x\n ",(cpu.eax&0x0000ffff));
+		printf("cx=0x%x\n ",(cpu.ecx&0x0000ffff));
+		printf("dx=0x%x\n ",(cpu.edx&0x0000ffff));
+		printf("bx=0x%x\n ",(cpu.ebx&0x0000ffff));
+		printf("sp=0x%x\n ",(cpu.esp&0x0000ffff));
+		printf("bp=0x%x\n ",(cpu.ebp&0x0000ffff));
+		printf("si=0x%x\n ",(cpu.esi&0x0000ffff));
+		printf("di=0x%x\n ",(cpu.edi&0x0000ffff));
+		return 0;
 			
 		}
 		printf("Unknown command '%s'\n",args );
