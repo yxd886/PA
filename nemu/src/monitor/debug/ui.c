@@ -39,6 +39,8 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 static int cmd_si(char *args);
 static int cmd_info(char *args);
+static int cmd_x(char *args);
+
 
 
 
@@ -52,6 +54,7 @@ static struct {
 	{ "q", "Exit NEMU", cmd_q },
 	{ "si", "Single Step", cmd_si },
 	{ "info", "Print the State of the Program ", cmd_info },
+	{ "x", "Scan memory ", cmd_x },
 
 	/* TODO: Add more commands */
 
@@ -143,6 +146,38 @@ static int cmd_info(char *args)
 	
 	return 0;
      }
+static int cmd_x(char *args)
+{
+    int i;
+	int j;
+	char* arg1 = strtok(NULL, " ");
+	char* arg2 = strtok(NULL, " ");
+	
+		if(arg1 == NULL|| arg2==NULL) 
+			{
+			/* no argument given */
+			printf("Unknown command '%s'\n",args ); 
+			return 0;
+			}
+		else
+			{
+			 i=strtol(arg2,NULL,16);
+			 for(j=0;j<atoi(arg1);j++)
+			 	{
+
+				 printf("%d\n",swaddr_read(i,4));
+				 i=i+4;
+				 	
+			 	}
+			 	
+			return 0;
+			}
+
+
+
+
+}
+
 
 void ui_mainloop() {
 	while(1) {
