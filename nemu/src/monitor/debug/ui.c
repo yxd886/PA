@@ -165,7 +165,7 @@ static int cmd_x(char *args)
 			 for(j=0;j<atoi(arg1);j++)
 			 	{
 
-				 printf("%d\n",swaddr_read(i,4));
+				 printf("%x\t%x\n",swaddr_read(i,4),i);
 				 i=i+4;
 				 	
 			 	}
