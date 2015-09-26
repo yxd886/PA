@@ -125,14 +125,14 @@ static int cmd_p(char *args){
 	bool success;
 	int result;
 	if(NULL==args){
-		printf("p EXPR,例如:p 2+4");
+		printf("p EXPR,just like:p 2+4");
 		return 0;
 	}
 	result = expr(args,&success);
 	if(false==success)
 		printf("Expression is wrong");
 	else
-		printf("%d\n",result);
+		printf("%x\n",result);
 	return 0;
 }
 
