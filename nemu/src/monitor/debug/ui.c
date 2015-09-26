@@ -180,7 +180,7 @@ static int cmd_w(char *args){
 		while(free_->address!=0)free_=free_->next;
 		free_->address=addr;
 		free_->value=swaddr_read(addr,4);
-		printf("watchpoint set successfully");
+		printf("watchpoint set successfully!\n");
 	}	
 	return 0;
 }
@@ -199,7 +199,7 @@ static int cmd_d(char *args){
 		free_->value=free_->next->value;
 		free_=free_->next;
 	}
-	printf("watchpoint deleted successfully!");
+	printf("watchpoint deleted successfully!\n");
 	return 0;
 }
 
