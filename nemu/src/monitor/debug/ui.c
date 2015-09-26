@@ -117,7 +117,7 @@ static int cmd_info(char *args)
 		if(args[0]=='w')
 			{
               for(free_=head;free_->address!=0;free_=free_->next)
-				printf("%d,%x:%d\n",free_->NO,free_->address,free_->value);
+				printf("%d,%08x:%08x\n",free_->NO,free_->address,free_->value);
 			  return 0;
 			
 			}
@@ -180,6 +180,7 @@ static int cmd_w(char *args){
 		while(free_->address!=0)free_=free_->next;
 		free_->address=addr;
 		free_->value=swaddr_read(addr,4);
+		printf("watchpoint set successfully");
 	}	
 	return 0;
 }
@@ -198,6 +199,7 @@ static int cmd_d(char *args){
 		free_->value=free_->next->value;
 		free_=free_->next;
 	}
+	printf("watchpoint deleted successfully!");
 	return 0;
 }
 
