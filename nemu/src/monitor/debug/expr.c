@@ -64,21 +64,7 @@ void init_token(){		//将token的type初始化为0方便之后的判断
 int hexToi(char *hex)
 {
 	int number=0;
-	int i=0;
-	if(hex[0]=='0'&&hex[1]=='x')
-		hex=hex+2;
-	while(hex[i]!='\0')
-	{
-		if(hex[i]>='0'&&hex[i]<='9')
-			number=number*16+hex[i]-'0';
-		else if(hex[i]>='a'&&hex[i]<='f')
-			number=number*16+hex[i]-'a';
-		else if(hex[i]>='A'&&hex[i]<='F')
-			number=number*16+hex[i]-'A';
-		else
-			return -1;
-		i++;
-	}
+	number=strtol(hex,NULL,16);
 	return number;
 }
 	
