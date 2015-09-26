@@ -4,18 +4,20 @@
 #define NR_WP 32
 
 static WP wp_list[NR_WP];
-static WP *head, *free_;
+WP *head, *free_;
 
 void init_wp_list() {
 	int i;
 	for(i = 0; i < NR_WP; i ++) {
 		wp_list[i].NO = i;
+		wp_list[i].address = 0;
+		wp_list[i].value = 0;
 		wp_list[i].next = &wp_list[i + 1];
 	}
 	wp_list[NR_WP - 1].next = NULL;
 
-	head = NULL;
-	free_ = wp_list;
+	head = wp_list;
+	free_ = NULL;
 }
 
 /* TODO: Implement the functionality of watchpoint */

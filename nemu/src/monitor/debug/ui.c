@@ -32,17 +32,19 @@ static int cmd_c(char *args) {
 	return 0;
 }
 
+
+
 static int cmd_q(char *args) {
 	return -1;
 }
 
-static int cmd_help(char *args);
 static int cmd_si(char *args);
 static int cmd_info(char *args);
+static int cmd_help(char *args);
+static int cmd_p(char *args);
 static int cmd_x(char *args);
-
-
-
+static int cmd_w(char *args);
+static int cmd_d(char *args);
 
 static struct {
 	char *name;
@@ -52,15 +54,127 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
-	{ "si", "Single Step", cmd_si },
-	{ "info", "Print the State of the Program ", cmd_info },
-	{ "x", "Scan memory ", cmd_x },
-
+	{ "si", "single step si for 1 step and si n for n step", cmd_si },
+	{ "info", "info r 打印寄存器状态, info w 打印监视点信息", cmd_info },
+	{ "p", "表达式求值, 示例:p $eax+1", cmd_p},
+	{ "x", "扫描内存,x N EXPR, 以16进制输出EXPR后N个4字节单元", cmd_x },
+	{ "w", "设置监视点,示例w *0x2000,当表达式的值发生变化时停止执行", cmd_w },
+	{ "d", "删除监视点,示例d N, 删除监视点序号为N的监视点", cmd_d }
 	/* TODO: Add more commands */
 
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
+
+static int cmd_si(char *args){
+	int number = 0;
+	if(NULL == args)
+		cpu_exec(1);
+	else{
+		number = strtol(args, NULL, 10);	
+		if(number > 0)
+			cpu_exec(number);
+		else
+			printf("parameter error!\n si for 1 step and si n for n step\n");
+	}
+	return 0;
+}
+
+static int cmd_info(char *args){
+	if(NULL == args)
+		printf("info r 打印寄存器状态, info w 打印监视点信息\n");
+	else{
+		if('r' == args[0]){
+			printf("cpu.eax = %d\n", cpu.eax);
+			printf("cpu.ebx = %d\n", cpu.ebx);
+			printf("cpu.ecx = %d\n", cpu.ecx);
+			printf("cpu.edx = %d\n", cpu.edx);
+			printf("cpu.esp = %d\n", cpu.esp);
+			printf("cpu.ebp = %d\n", cpu.ebp);
+			printf("cpu.esi = %d\n", cpu.esi);
+			printf("cpu.edi = %d\n", cpu.edi);
+			printf("cpu.eip = %d\n", cpu.eip);
+		}
+		else if('w' == args[0]){
+			for(free_=head;free_->address!=0;free_=free_->next)
+				printf("%d,%x:%d\n",free_->NO,free_->address,free_->value);
+		}
+		else 
+			printf("info r 打印寄存器状态, info w 打印监视点信息\n");
+	}
+	return 0;
+}
+
+static int cmd_p(char *args){
+	bool success;
+	int result;
+	if(NULL==args){
+		printf("p EXPR,例如:p 2+4");
+		return 0;
+	}
+	result = expr(args,&success);
+	if(false==success)
+		printf("Expression is wrong");
+	else
+		printf("%d\n",result);
+	return 0;
+}
+
+static int cmd_x(char *args){
+	char *csize = strtok(args, " ");
+	char *caddr = csize+strlen(csize)+1;
+	int size = atoi(csize);
+	int addr;
+	int i;
+	bool success;
+	if(NULL == csize||NULL == caddr)
+		printf("x N EXPR,例如:x 10 $eax");
+	else{
+		printf("%s\n",caddr);
+		addr = expr(caddr,&success);
+		if(false==success)
+			printf("Expression is wrong\n");
+		else
+			for(i=0;i<size;i++)
+				printf("%d\n",swaddr_read(addr+i*4,4));
+	}
+	return 0;
+}
+
+static int cmd_w(char *args){
+	bool success;
+	int addr;
+	if(NULL==args){
+		printf("w EXPR,例如:w 5+2");
+		return 0;
+	}
+	addr = expr(args,&success);
+	if(false==success)
+		printf("Expression is wrong");
+	else{
+		free_=head;
+		while(free_->address!=0)free_=free_->next;
+		free_->address=addr;
+		free_->value=swaddr_read(addr,4);
+	}	
+	return 0;
+}
+
+static int cmd_d(char *args){
+	int n;
+	if(NULL==args){
+		printf("d N,例如：d 2");
+		return 0;
+	}
+	n = atoi(args);
+	for(free_=head;free_->NO != n;free_=free_->next)
+		;
+	while(free_->next!=NULL){
+		free_->address=free_->next->address;
+		free_->value=free_->next->value;
+	}
+	return 0;
+}
 
 static int cmd_help(char *args) {
 	/* extract the first argument */
@@ -84,100 +198,6 @@ static int cmd_help(char *args) {
 	}
 	return 0;
 }
-static int cmd_si(char *args) 
-	{
-	/* extract the first argument */
-	char* arg = strtok(NULL, " ");
-
-	if(arg == NULL) 
-		{
-		/* no argument given */
-		cpu_exec(1);
-	    return 0;
-		}
-	
-	else 
-		{
-		cpu_exec(atoi(arg));
-	    return 0;
-			
-		}
-		printf("Unknown command '%s'\n",args );
-	
-	return 0;
-     }
-
-static int cmd_info(char *args) 
-	{
-	/* extract the first argument */
-	char* arg = strtok(NULL, " ");
-
-	if(arg == NULL) 
-		{
-		/* no argument given */
-		printf("Unknown command '%s'\n",args );	
-	    return 0;
-		}
-	
-	else 
-		{
-		if(arg[0]=='r') 
-	    printf(" eax=0x%x\n ",cpu.eax);
-		printf("ecx=0x%x\n ",cpu.ecx);
-		printf("edx=0x%x\n ",cpu.edx);
-		printf("ebx=0x%x\n ",cpu.ebx);
-		printf("esp=0x%x\n ",cpu.esp);
-		printf("ebp=0x%x\n ",cpu.ebp);
-		printf("esi=0x%x\n ",cpu.esi);
-		printf("edi=0x%x\n ",cpu.edi);
-		printf("eip=0x%x\n ",cpu.eip);
-		printf("ax=0x%x\n ",(cpu.eax&0x0000ffff));
-		printf("cx=0x%x\n ",(cpu.ecx&0x0000ffff));
-		printf("dx=0x%x\n ",(cpu.edx&0x0000ffff));
-		printf("bx=0x%x\n ",(cpu.ebx&0x0000ffff));
-		printf("sp=0x%x\n ",(cpu.esp&0x0000ffff));
-		printf("bp=0x%x\n ",(cpu.ebp&0x0000ffff));
-		printf("si=0x%x\n ",(cpu.esi&0x0000ffff));
-		printf("di=0x%x\n ",(cpu.edi&0x0000ffff));
-		return 0;
-			
-		}
-		printf("Unknown command '%s'\n",args );
-	
-	return 0;
-     }
-static int cmd_x(char *args)
-{
-    int i;
-	int j;
-	char* arg1 = strtok(NULL, " ");
-	char* arg2 = strtok(NULL, " ");
-	
-		if(arg1 == NULL|| arg2==NULL) 
-			{
-			/* no argument given */
-			printf("Unknown command '%s'\n",args ); 
-			return 0;
-			}
-		else
-			{
-			 i=strtol(arg2,NULL,16);
-			 for(j=0;j<atoi(arg1);j++)
-			 	{
-
-				 printf("%08x\t%08x\n",swaddr_read(i,4),i);
-				 i=i+4;
-				 	
-			 	}
-			 	
-			return 0;
-			}
-
-
-
-
-}
-
 
 void ui_mainloop() {
 	while(1) {
