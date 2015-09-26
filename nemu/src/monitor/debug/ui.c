@@ -161,7 +161,7 @@ static int cmd_w(char *args){
 	bool success;
 	int addr;
 	if(NULL==args){
-		printf("w EXPR,例如:w 5+2");
+		printf("w EXPR,just like w 5+2");
 		return 0;
 	}
 	addr = expr(args,&success);
@@ -179,7 +179,7 @@ static int cmd_w(char *args){
 static int cmd_d(char *args){
 	int n;
 	if(NULL==args){
-		printf("d N,例如：d 2");
+		printf("d N, just like 2");
 		return 0;
 	}
 	n = atoi(args);
