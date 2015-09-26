@@ -83,9 +83,8 @@ static int cmd_si(char *args){
 static int cmd_info(char *args) 
 	{
 	/* extract the first argument */
-	char* arg = strtok(NULL, " ");
 
-	if(arg == NULL) 
+	if(args == NULL) 
 		{
 		/* no argument given */
 		printf("Unknown command '%s'\n",args );	
@@ -94,7 +93,8 @@ static int cmd_info(char *args)
 	
 	else 
 		{
-		if(arg[0]=='r') 
+		if(args[0]=='r') 
+			{
 	    printf(" eax=0x%x\n ",cpu.eax);
 		printf("ecx=0x%x\n ",cpu.ecx);
 		printf("edx=0x%x\n ",cpu.edx);
@@ -113,6 +113,14 @@ static int cmd_info(char *args)
 		printf("si=0x%x\n ",(cpu.esi&0x0000ffff));
 		printf("di=0x%x\n ",(cpu.edi&0x0000ffff));
 		return 0;
+			}
+		if(args[0]=='w')
+			{
+              for(free_=head;free_->address!=0;free_=free_->next)
+				printf("%d,%x:%d\n",free_->NO,free_->address,free_->value);
+			  return 0;
+			
+			}
 			
 		}
 		printf("Unknown command '%s'\n",args );
