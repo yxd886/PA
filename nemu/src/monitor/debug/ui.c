@@ -55,11 +55,11 @@ static struct {
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
 	{ "si", "single step si for 1 step and si n for n step", cmd_si },
-	{ "info", "info r 打印寄存器状态, info w 打印监视点信息", cmd_info },
-	{ "p", "表达式求值, 示例:p $eax+1", cmd_p},
-	{ "x", "扫描内存,x N EXPR, 以16进制输出EXPR后N个4字节单元", cmd_x },
-	{ "w", "设置监视点,示例w *0x2000,当表达式的值发生变化时停止执行", cmd_w },
-	{ "d", "删除监视点,示例d N, 删除监视点序号为N的监视点", cmd_d }
+	{ "info", "info r print register information, info w print watchpoint information", cmd_info },
+	{ "p", "evaluation of expression, just like:p $eax+1", cmd_p},
+	{ "x", "scan memory, x N EXPR", cmd_x },
+	{ "w", "set watchpoint just like: w *0x2000", cmd_w },
+	{ "d", "delete watchpoint just like: d N", cmd_d }
 	/* TODO: Add more commands */
 
 };
@@ -80,30 +80,46 @@ static int cmd_si(char *args){
 	return 0;
 }
 
-static int cmd_info(char *args){
-	if(NULL == args)
-		printf("info r 打印寄存器状态, info w 打印监视点信息\n");
-	else{
-		if('r' == args[0]){
-			printf("cpu.eax = %d\n", cpu.eax);
-			printf("cpu.ebx = %d\n", cpu.ebx);
-			printf("cpu.ecx = %d\n", cpu.ecx);
-			printf("cpu.edx = %d\n", cpu.edx);
-			printf("cpu.esp = %d\n", cpu.esp);
-			printf("cpu.ebp = %d\n", cpu.ebp);
-			printf("cpu.esi = %d\n", cpu.esi);
-			printf("cpu.edi = %d\n", cpu.edi);
-			printf("cpu.eip = %d\n", cpu.eip);
+static int cmd_info(char *args) 
+	{
+	/* extract the first argument */
+	char* arg = strtok(NULL, " ");
+
+	if(arg == NULL) 
+		{
+		/* no argument given */
+		printf("Unknown command '%s'\n",args );	
+	    return 0;
 		}
-		else if('w' == args[0]){
-			for(free_=head;free_->address!=0;free_=free_->next)
-				printf("%d,%x:%d\n",free_->NO,free_->address,free_->value);
+	
+	else 
+		{
+		if(arg[0]=='r') 
+	    printf(" eax=0x%x\n ",cpu.eax);
+		printf("ecx=0x%x\n ",cpu.ecx);
+		printf("edx=0x%x\n ",cpu.edx);
+		printf("ebx=0x%x\n ",cpu.ebx);
+		printf("esp=0x%x\n ",cpu.esp);
+		printf("ebp=0x%x\n ",cpu.ebp);
+		printf("esi=0x%x\n ",cpu.esi);
+		printf("edi=0x%x\n ",cpu.edi);
+		printf("eip=0x%x\n ",cpu.eip);
+		printf("ax=0x%x\n ",(cpu.eax&0x0000ffff));
+		printf("cx=0x%x\n ",(cpu.ecx&0x0000ffff));
+		printf("dx=0x%x\n ",(cpu.edx&0x0000ffff));
+		printf("bx=0x%x\n ",(cpu.ebx&0x0000ffff));
+		printf("sp=0x%x\n ",(cpu.esp&0x0000ffff));
+		printf("bp=0x%x\n ",(cpu.ebp&0x0000ffff));
+		printf("si=0x%x\n ",(cpu.esi&0x0000ffff));
+		printf("di=0x%x\n ",(cpu.edi&0x0000ffff));
+		return 0;
+			
 		}
-		else 
-			printf("info r 打印寄存器状态, info w 打印监视点信息\n");
-	}
+		printf("Unknown command '%s'\n",args );
+	
 	return 0;
-}
+     }
+
 
 static int cmd_p(char *args){
 	bool success;
@@ -128,7 +144,7 @@ static int cmd_x(char *args){
 	int i;
 	bool success;
 	if(NULL == csize||NULL == caddr)
-		printf("x N EXPR,例如:x 10 $eax");
+		printf("x N EXPR,just like: x 10 $eax");
 	else{
 		printf("%s\n",caddr);
 		addr = expr(caddr,&success);
@@ -136,7 +152,7 @@ static int cmd_x(char *args){
 			printf("Expression is wrong\n");
 		else
 			for(i=0;i<size;i++)
-				printf("%d\n",swaddr_read(addr+i*4,4));
+			printf("%08x%08x\n",addr,swaddr_read(addr+i*4,4));
 	}
 	return 0;
 }
