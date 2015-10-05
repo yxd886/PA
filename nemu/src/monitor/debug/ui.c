@@ -116,7 +116,7 @@ static int cmd_p(char *args){
 
 static int cmd_x(char *args){
 	char *csize = strtok(args, " ");
-	char *caddr = strtok(NULL, " "); //csize+strlen(csize)+1;
+	char *caddr = strtok(NULL, " "); 
 	int size = atoi(csize);
 	int addr;
 	int i;
