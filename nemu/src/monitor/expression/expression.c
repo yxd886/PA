@@ -1,9 +1,11 @@
 #include "monitor/expression/expression.h"
+#include "memory/memory.h"
 
 void TokenPush(Token token)
 {
 	top++;
 	TokenStack[top].type=token.type;
+	TokenStack[top].priority=token.priority;
 	strcpy(TokenStack[top].str,token.str);
 }
 
@@ -12,6 +14,7 @@ void TokenPop(void)
 	while(top>=0&&TokenStack[top].type!='(')
 	{
 		postfix[postCount].type=TokenStack[top].type;
+		postfix[postCount].priority=TokenStack[top].priority;
 		strcpy(postfix[postCount].str,TokenStack[top].str);
 		top--;
 		postCount++;
@@ -23,6 +26,7 @@ void TokenPopOne(void)
 	if(top>=0)
 	{
 		postfix[postCount].type=TokenStack[top].type;
+		postfix[postCount].priority=TokenStack[top].priority;
 		strcpy(postfix[postCount].str,TokenStack[top].str);
 		top--;
 		postCount++;
@@ -43,32 +47,21 @@ void createPostfixExpression(Token *infix)
 		{
 		case NUM:
 			postfix[postCount].type=infix[inCount].type;
+			postfix[postCount].priority=infix[inCount].priority;
 			strcpy(postfix[postCount].str,infix[inCount].str);
 			postCount++;
 			break;
-		case '+':case '-':
-			TokenPop();
-			TokenPush(infix[inCount]);
-			break;
-		case '*':
-			if(0==inCount || (infix[inCount-1].type == '(') || (infix[inCount-1].type == '+') ||
-				(infix[inCount-1].type == '-') || (infix[inCount-1].type == '*') ||
-				(infix[inCount-1].type == '/'||infix[inCount-1].type == ADDR))	//如果在最开始，则为取地址，如果前面为运算符，则为取地址
-			{
-				infix[inCount].type=ADDR;
+		case '+': case '-': case '*': case '/': case EQU: case UNEQU: case AND: case OR: 
+			if(TokenStack[top].priority>infix[inCount].priority)
 				TokenPush(infix[inCount]);
-				break;
-			}
-			//其他情况作为乘号直接往下运行
-		case '/':
-			if(TokenStack[top].type=='+'||TokenStack[top].type=='-')
-				TokenPush(infix[inCount]);
-			else
-			{
-				while(TokenStack[top].type!='+'&&TokenStack[top].type!='-'&&top>=0)
+			else{
+				while(TokenStack[top].priority<=infix[inCount].priority&&top>=0)
 					TokenPopOne();
 				TokenPush(infix[inCount]);
 			}
+			break;
+		case ADDR: case MINUS: case NOT:
+			TokenPush(infix[inCount]);
 			break;
 		case '(':
 			TokenPush(infix[inCount]);
@@ -132,8 +125,32 @@ int calPostfixExpression(void)
 				return -1;
 			}
 			break;
+		case EQU:
+			right_oprand=intPop();
+			intPush(intPop()==right_oprand);
+			break;
+		case UNEQU:
+			right_oprand=intPop();
+			intPush(intPop()!=right_oprand);
+			break;
+		case AND:
+			right_oprand=intPop();
+			intPush(intPop()&&right_oprand);
+			break;
+		case OR:
+			right_oprand=intPop();
+			intPush(intPop()||right_oprand);
+			break;
+		case NOT:
+			intPush(!intPop());
+			break;
+		case MINUS:
+			intPush(0-intPop());
+			break;
 		case ADDR:
-			intPush(swaddr_read(intPop(),4));
+			right_oprand=intPop();
+			right_oprand=right_oprand?((right_oprand-1)/4+1)*4:0;
+			intPush(swaddr_read(right_oprand,4));
 			break;
 		default:
 			printf("illegal input\n");

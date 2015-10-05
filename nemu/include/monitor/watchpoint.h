@@ -5,15 +5,15 @@
 
 typedef struct watchpoint {
 	int NO;
-	int address;
-	int value;
+	char args[32];
+	uint32_t value;
 	struct watchpoint *next;
-
-	/* TODO: Add more members if necessary */
-
 } WP;
 
 void init_wp_list();
-extern WP *head, *free_;
+void add_wp();
+bool delete_wp(int n);
+void print_wp();
+bool check_wp();
 
 #endif

@@ -1,11 +1,10 @@
 #include "monitor/expr.h"
-#include "memory/memory.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#define SIZE 15
+#define SIZE 20
 
 Token TokenStack[SIZE];
 void TokenPop(void);
