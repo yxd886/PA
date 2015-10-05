@@ -55,7 +55,7 @@ bool delete_wp(int n){
 
 void print_wp(){
 	for(free_=head;free_->args[0]!='\0';free_=free_->next)
-		printf("%d,%s:%u\n",free_->NO,free_->args,free_->value);
+		printf("breakpoint:%d    %s:  0x%08x\n",free_->NO,free_->args,free_->value);
 }
 
 bool check_wp(){
@@ -67,7 +67,7 @@ bool check_wp(){
 		value=expr(free_->args,&success);
 		if(free_->value!=value && true==success){
 			free_->value=value;
-			printf("breakpoint:%d    %s:%8u\n",free_->NO,free_->args,free_->value);
+			printf("breakpoint:%d    %s:  0x%08x\n",free_->NO,free_->args,free_->value);
 			isChanged=true;
 		}
 	}
