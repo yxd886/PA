@@ -51,11 +51,11 @@ static struct {
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
 	{ "si", "single step si for 1 step and si n for n step", cmd_si },
-	{ "info", "info r 打印寄存器状态, info w 打印监视点信息", cmd_info },
-	{ "p", "表达式求值, 示例:p $eax+1", cmd_p},
-	{ "x", "扫描内存,x N EXPR, 以16进制输出EXPR后N个4字节单元", cmd_x },
-	{ "w", "设置监视点,示例w *0x2000,当表达式的值发生变化时停止执行", cmd_w },
-	{ "d", "删除监视点,示例d N, 删除监视点序号为N的监视点", cmd_d }
+	{ "info", "info r print register informatio,info w prinf watchpoint information", cmd_info },
+	{ "p", "get value of an expression, like:p $eax+1", cmd_p},
+	{ "x", "scan memory,x N EXPR", cmd_x },
+	{ "w", "set watchpoint like:w *0x2000", cmd_w },
+	{ "d", "delete watchpoint like d N", cmd_d }
 	/* TODO: Add more commands */
 
 };
@@ -78,23 +78,23 @@ static int cmd_si(char *args){
 
 static int cmd_info(char *args){
 	if(NULL == args)
-		printf("info r 打印寄存器状态, info w 打印监视点信息\n");
+		printf("info r print register information, info w print watchpoint information\n");
 	else{
 		if('r' == args[0]){
-			printf("cpu.eax = %d\n", cpu.eax);
-			printf("cpu.ebx = %d\n", cpu.ebx);
-			printf("cpu.ecx = %d\n", cpu.ecx);
-			printf("cpu.edx = %d\n", cpu.edx);
-			printf("cpu.esp = %d\n", cpu.esp);
-			printf("cpu.ebp = %d\n", cpu.ebp);
-			printf("cpu.esi = %d\n", cpu.esi);
-			printf("cpu.edi = %d\n", cpu.edi);
-			printf("cpu.eip = %d\n", cpu.eip);
+			printf("cpu.eax = 0x%08x\n", cpu.eax);
+			printf("cpu.ebx = 0x%08x\n", cpu.ebx);
+			printf("cpu.ecx = 0x%08x\n", cpu.ecx);
+			printf("cpu.edx = 0x%08x\n", cpu.edx);
+			printf("cpu.esp = 0x%08x\n", cpu.esp);
+			printf("cpu.ebp = 0x%08x\n", cpu.ebp);
+			printf("cpu.esi = 0x%08x\n", cpu.esi);
+			printf("cpu.edi = 0x%08x\n", cpu.edi);
+			printf("cpu.eip = 0x%08x\n", cpu.eip);
 		}
 		else if('w' == args[0])
 			print_wp();
 		else 
-			printf("info r 打印寄存器状态, info w 打印监视点信息\n");
+			printf("info r print register information, info w print watchpoint information\n");
 	}
 	return 0;
 }
@@ -103,14 +103,14 @@ static int cmd_p(char *args){
 	bool success;
 	int result;
 	if(NULL==args){
-		printf("p EXPR,例如:p 2+4\n");
+		printf("p EXPR,like:p 2+4\n");
 		return 0;
 	}
 	result = expr(args,&success);
 	if(false==success)
 		printf("Expression is wrong\n");
 	else
-		printf("%d\n",result);
+		printf("0x%08x\n",result);
 	return 0;
 }
 
@@ -122,7 +122,7 @@ static int cmd_x(char *args){
 	int i;
 	bool success;
 	if(NULL == csize||NULL == caddr)
-		printf("x N EXPR,例如:x 10 $eax\n");
+		printf("x N EXPR,like:x 10 $eax\n");
 	else{
 		printf("%s\n",caddr);
 		addr = expr(caddr,&success);
@@ -131,14 +131,14 @@ static int cmd_x(char *args){
 			printf("Expression is wrong\n");
 		else
 			for(i=0;i<size;i++)
-				printf("%d\n",swaddr_read(addr+i*4,4));
+				printf("0x%08x\t0x%08x\n",addr,swaddr_read(addr+i*4,4));
 	}
 	return 0;
 }
 
 static int cmd_w(char *args){
 	if(NULL==args){
-		printf("w EXPR,例如:w $eax+2\n");
+		printf("w EXPR,like:w $eax+2\n");
 		return 0;
 	}
 	add_wp(args);
@@ -148,7 +148,7 @@ static int cmd_w(char *args){
 static int cmd_d(char *args){
 	int n;
 	if(NULL==args){
-		printf("d N,例如：d 2\n");
+		printf("d N,like:d 2\n");
 		return 0;
 	}
 	n = atoi(args);
