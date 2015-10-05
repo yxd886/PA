@@ -131,7 +131,7 @@ static int cmd_x(char *args){
 			printf("Expression is wrong\n");
 		else
 			for(i=0;i<size;i++)
-				printf("0x%08x\t0x%08x\n",addr,swaddr_read(addr+i*4,4));
+				printf("0x%08x\t0x%08x\n",addr+i*4,swaddr_read(addr+i*4,4));
 	}
 	return 0;
 }
