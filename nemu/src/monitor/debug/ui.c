@@ -67,7 +67,7 @@ static int cmd_si(char *args){
 	if(NULL == args)
 		cpu_exec(1);
 	else{
-		number = strtol(args, NULL, 10);	
+		number = atoi(args);	
 		if(number > 0)
 			cpu_exec(number);
 		else
@@ -116,7 +116,7 @@ static int cmd_p(char *args){
 
 static int cmd_x(char *args){
 	char *csize = strtok(args, " ");
-	char *caddr = csize+strlen(csize)+1;
+	char *caddr = strtok(NULL, " "); //csize+strlen(csize)+1;
 	int size = atoi(csize);
 	int addr;
 	int i;
