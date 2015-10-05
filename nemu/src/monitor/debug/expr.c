@@ -79,7 +79,7 @@ static bool make_token(char *e) {
 	int position = 0;
 	int i;
 	int j=0;	
-	char *reg_name[] = {"eax","ecx","edx","ebx","esp","ebp","esi","edi"};
+	char *reg_name[] = {"eax","ecx","edx","ebx","esp","ebp","esi","edi","eip"};
 	regmatch_t pmatch;
 	
 	nr_token = 0;
