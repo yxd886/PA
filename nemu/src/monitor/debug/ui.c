@@ -90,6 +90,19 @@ static int cmd_info(char *args){
 			printf("cpu.esi = 0x%08x\n", cpu.esi);
 			printf("cpu.edi = 0x%08x\n", cpu.edi);
 			printf("cpu.eip = 0x%08x\n", cpu.eip);
+			printf("cpu.VM = 0x%08x\n", cpu.VM);
+			printf("cpu.RF = 0x%08x\n", cpu.RF);
+			printf("cpu.NT = 0x%08x\n", cpu.NT);
+			printf("cpu.IOPL = 0x%08x\n", cpu.IOPL);
+			printf("cpu.OF = 0x%08x\n", cpu.OF);
+			printf("cpu.DF = 0x%08x\n", cpu.DF);
+			printf("cpu.IF = 0x%08x\n", cpu.IF);
+			printf("cpu.TF = 0x%08x\n", cpu.TF);
+			printf("cpu.SF = 0x%08x\n", cpu.SF);
+			printf("cpu.ZF = 0x%08x\n", cpu.ZF);
+			printf("cpu.AF = 0x%08x\n", cpu.AF);
+			printf("cpu.PF = 0x%08x\n", cpu.PF);
+			printf("cpu.CF = 0x%08x\n", cpu.CF);
 		}
 		else if('w' == args[0])
 			print_wp();
