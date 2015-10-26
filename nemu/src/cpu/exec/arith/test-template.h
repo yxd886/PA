@@ -15,7 +15,7 @@ static void do_execute () {
 	else
 		cpu.SF = 0;
 	if(result == 0)
-		cpu.ZF = 0;
+		cpu.ZF = 1;
 	int bit[8];
 	bit[0]=result&0x1;
 	bit[1]=(result>>1)&0x1;
