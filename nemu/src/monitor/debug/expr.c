@@ -1,39 +1,46 @@
-#include "nemu.h"
+ #include "nemu.h"
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <sys/types.h>
 #include <regex.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
+enum {
+	NOTYPE = 256, EQ,UEQ,AND,OR,HEX,REG,NO,LEFT,RIGHT,NEG,DEREF
+
+	/* TODO: Add more token types */
+
+};
 
 static struct rule {
 	char *regex;
 	int token_type;
-	int priority;
 } rules[] = {
 
 	/* TODO: Add more rules.
 	 * Pay attention to the precedence level of different rules.
 	 */
 
-	{" +",	NOTYPE, 0},				// spaces
-	{"==", EQU, 7},
-	{"\\!=", UNEQU, 7},
-	{"\\&\\&", AND, 11},
-	{"\\|\\|", OR, 12},
-	{"\\!", NOT, 2},
-	{"\\+", '+', 4},					// plus
-	{"\\-", '-', 4},
-	{"\\*", '*', 3},
-	{"\\/", '/', 3},
-	{"^0x[0-9a-fA-F]+",HEX, 0},
-	{"^[0-9]+",NUM, 0},					//number
-	{"^\\$[a-z]+",REG, 0},					//register
-	{"\\(", '(', 15},	
-	{"\\)", ')', 15}
-	
+	{" +",	NOTYPE},				// spaces
+	{"\\+", '+'},					// plus
+	{"==", EQ},						// equal
+	{"-",'-'},
+    	{"\\*",'*'},
+    	{"!=",UEQ},
+    	{"&&",AND},
+    	{"\\|\\|",OR},
+    	{"!",'!'},
+    	{"=",'='},
+    	{"0x[A-Z]*[0-9]*",HEX},
+   	{"\\$[a-z]{2,3}",REG},
+   	{"/",'/'},
+   	{"[0-9]+",NO},//certaintype 用于区分×是指针还是称号，或者-是负号还是减号,表示number
+   	{"\\(",LEFT},
+   	{"\\)",RIGHT}//grpupp
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -57,157 +64,309 @@ void init_regex() {
 	}
 }
 
+typedef struct token {
+	int type;
+	char str[32];
+} Token;
+uint32_t  eval(int p,int q);
+bool check_parentheses(int p,int q);
+uint32_t find_op(int p,int q);
+int judge_yxj(int type,int *yxj,int *pos,int i);
 
-static int nr_token;
+
 Token tokens[32];
-
-void init_token(){		//将token的type初始化为0方便之后的判断
-	int i;
-	for(i=0;i<32;++i)
-		tokens[i].type=0;
-}
-
-int hexToi(char *hex)
-{
-	int number=0;
-	number=strtol(hex,NULL,16);
-	return number;
-}
-	
+int nr_token;
 
 static bool make_token(char *e) {
 	int position = 0;
-	int i;
-	int j=0;	
-	char *reg_name[] = {"eax","ecx","edx","ebx","esp","ebp","esi","edi"};
-	regmatch_t pmatch;
+    	int i;
+	int flag;
+
+    regmatch_t pmatch;
+
+    nr_token = 0;
 	
-	nr_token = 0;
 
-	while(e[position] != '\0') {
-		/* Try all rules one by one. */
-		for(i = 0; i < NR_REGEX; i ++) {
-			if(regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
-				char *substr_start = e + position;
-				int substr_len = pmatch.rm_eo;
-				
-//				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
-				position += substr_len;
+    while(e[position] != '\0')
+    {
+        /* Try all rules one by one. */
+        for(i = 0,flag=0; i < NR_REGEX; i ++)
+        {
+            if(regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0)
+            {
+                char *substr_start = e + position;
+                int substr_len = pmatch.rm_eo;
 
-				/* TODO: Now a new token is recognized with rules[i]. Add codes
-				 * to record the token in the array ``tokens''. For certain 
-				 * types of tokens, some extra actions should be performed.
-				 */
+                Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
-				switch(rules[i].token_type) {
-					case NOTYPE:
-						break;
-					case REG:
-						strncpy(tokens[nr_token].str, substr_start+1, substr_len-1);
-						tokens[nr_token].str[substr_len-1]='\0';
-						for(j=0;j<8;j++)
-						{
-							if(0 == strcmp(tokens[nr_token].str,reg_name[j]))
-							{
-								sprintf(tokens[nr_token].str, "%d", cpu.gpr[j]._32);
-								tokens[nr_token].type = NUM;
-								break;
-							}
+                tokens[nr_token].type=rules[i].token_type;
+                 while(flag<substr_len){
+                    tokens[nr_token].str[flag++]=e[position++];
+		  
+                }
+		tokens[nr_token].str[flag]='\0';
+               
 
-						}
-						if(0 == strcmp(tokens[nr_token].str,"eip"))
-						{
-							sprintf(tokens[nr_token].str, "%d", cpu.eip);
-							tokens[nr_token].type = NUM;
-						}
-						else if(8 == j)
-						{
-							panic("register is error");
-							return false;
-						}
-						tokens[nr_token].priority=rules[i].priority;
-						nr_token++;
-						break;
-					case '*':
-						if(0==nr_token||(tokens[nr_token-1].type!=')'&&tokens[nr_token-1].type!=NUM))
-						{
-							tokens[nr_token].type=ADDR;
-							tokens[nr_token].priority=2;
-						}
-						else
-						{
-							tokens[nr_token].type=rules[i].token_type;
-							tokens[nr_token].priority=rules[i].priority;
-						}
-						strncpy(tokens[nr_token].str, substr_start, substr_len);
-						tokens[nr_token].str[substr_len]='\0';
-						nr_token++;
-						break;
-					case '-':
-						if(0==nr_token||(tokens[nr_token-1].type!=')'&&tokens[nr_token-1].type!=NUM))
-						{
-							tokens[nr_token].type=MINUS;
-							tokens[nr_token].priority=2;
-						}
-						else
-						{
-							tokens[nr_token].type=rules[i].token_type;
-							tokens[nr_token].priority=rules[i].priority;
-						}
-						strncpy(tokens[nr_token].str, substr_start, substr_len);
-						tokens[nr_token].str[substr_len]='\0';
-						nr_token++;
-						break;
 
-					case HEX:
-						strncpy(tokens[nr_token].str, substr_start, substr_len);
-						tokens[nr_token].str[substr_len]='\0';
-						sprintf(tokens[nr_token].str, "%d", hexToi(tokens[nr_token].str));
-						tokens[nr_token].priority=rules[i].priority;
-						tokens[nr_token].type=NUM;
-						nr_token++;
-						break;
-					default: 
-						tokens[nr_token].priority=rules[i].priority;
-						tokens[nr_token].type=rules[i].token_type;
-						strncpy(tokens[nr_token].str, substr_start, substr_len);
-						tokens[nr_token].str[substr_len]='\0';
-						nr_token++;
-						//panic("please implement me");
-				}
 
-				break;
-			}
+                /* TODO: Now a new token is recognized with rules[i]. Add codes
+                 * to record the token in the array ``tokens''. For certain
+                 * types of tokens, some extra actions should be performed.
+                 */
+
+                switch(tokens[nr_token].type)
+                {
+                case '-':
+                    if(nr_token==0||(tokens[nr_token-1].type!=NO&&tokens[nr_token-1].type!=RIGHT)){
+                        tokens[nr_token].type=NEG;
+			printf("\nthe type has been changed NEG\n");
+                          }
+			break;
+                case '*':
+                    if(nr_token==0||(tokens[nr_token-1].type!=NO&&tokens[nr_token-1].type!=RIGHT)){
+                        tokens[nr_token].type=DEREF;
+			printf("\nthe type has been changed DEREF\n");
 		}
+			break;
+		case NOTYPE:
+			nr_token--;
+                
+                }
+		nr_token++;
+                
 
-		if(i == NR_REGEX) {
-			printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
-			return false;
-		}
-	}
-	return true; 
+                break;
+            }
+
+        }
+        
+        if(nr_token==32)
+        {
+            Log("the expression is beyond  the length");
+            return false;
+        }
+
+        if(i == NR_REGEX)
+        {
+	    
+            printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
+            return false;
+        }
+    }
+ 
+
+    return true;
 }
-/*
-void scanToken(){
-	int i;
-	for(i=0;i<nr_token;i++){
-		printf("%d,%s,%d\n",postfix[i].type,postfix[i].str,postfix[i].priority);
-	}
-}*/
+
+
 
 uint32_t expr(char *e, bool *success) {
-	//int i=0;
-	init_token();
-	*success = true;
-	if(!make_token(e)) {
-		*success = false;
-		return 0;
-	}
-	createPostfixExpression(tokens);
-/*	while(postfix[i].type!=0){
-		printf("%d,%s,%d\n",postfix[i].type,postfix[i].str,postfix[i].priority);
-		i++;
-	}*/
-	return calPostfixExpression();
+	 if(!make_token(e))
+    {
+        *success = false;
+        return 0;
+    }else{
+	
 }
+    uint32_t num;
+    int p=0,q=nr_token-1;  //nr_token表示分词的个数
+    num=eval(p,q);
+    return num;
+}
+uint32_t  eval(int p,int q)
+{
+    
+    uint32_t op;
+    uint32_t val1=0;
+    uint32_t val2=0;
+    if(p>q)
+    {
+        printf("the bad expression\n");
+        assert(0);
+
+    }
+    else if(p==q)
+    {
+        char *endptr;
+        if(tokens[p].type==HEX){
+	return  strtol(tokens[p].str,&endptr,16);
+         }
+
+        if(tokens[p].type==NO)
+            return  atoi(tokens[p].str);
+        if(tokens[p].type==REG)
+        {
+            if(!strcmp(tokens[p].str+1,"eax"))
+                return cpu.eax;
+            if(!strcmp(tokens[p].str+1,"ecx"))
+                return cpu.ecx;
+            if(!strcmp(tokens[p].str+1,"edx"))
+                return cpu.edx;
+            if(!strcmp(tokens[p].str+1,"ebx"))
+                return cpu.ebx;
+            if(!strcmp(tokens[p].str+1,"esp"))
+                return cpu.esp;
+            if(!strcmp(tokens[p].str+1,"ebp"))
+                return cpu.ebp;
+            if(!strcmp(tokens[p].str+1,"esi"))
+                return cpu.esi;
+            if(!strcmp(tokens[p].str+1,"edi"))
+                return cpu.edi;
+	   if(!strcmp(tokens[p].str+1,"eip"))
+		return cpu.eip;
+        }
+
+    }
+    else if(check_parentheses(p,q)==true)   /*implement check_parentheses*/
+    {
+	
+        return eval(p+1,q-1);
+    }
+    else
+    {
+	
+        op= find_op(p,q);    /*implement find_op(p,q)*/
+	
+        if(tokens[op].type==NEG||tokens[op].type==DEREF||tokens[op].type=='!')
+        {
+            val2=eval(op+1,q);}else{
+
+        val1=eval(p,op-1);
+        val2=eval(op+1,q);}
+
+        switch(tokens[op].type)
+        {
+        case '+':
+            return val1+val2;
+		
+        case '-':
+            return val1-val2;
+        case '/':
+            return val1/val2;
+		
+        case '*':
+            return val1*val2;
+        case OR:
+            return val1||val2;
+        case AND:
+            return val1&&val2;
+        case EQ:
+            return val1==val2;
+        case '=':
+            return val1=val2;
+        case UEQ:
+            return val1!=val2;
+        case '!':
+            return !val2;
+        case NEG:
+            return -val2;
+        case DEREF:
+            return swaddr_read(val2,4);
+        default:
+           printf("不合法的表达式,在switch case语句中");
+		return 0;
+        }
+
+
+
+    }
+	return 0;
+
+}
+bool check_parentheses(int p,int q)
+{
+    if(tokens[p].type!=LEFT||tokens[q].type!=RIGHT)
+    {
+        return false;
+    }
+    char s[32];
+    int i,flag=0;
+    for(i=p+1; i<q; i++)
+    {
+        if(tokens[i].type==LEFT)
+            s[flag++]='(';
+        if(tokens[i].type==RIGHT&&s[flag-1]=='(')
+        {
+            flag=flag-1;
+        }
+    }
+    if(flag>0)
+        return false;
+    else
+        return true;
+    return true;
+}
+
+uint32_t find_op(int p,int q)
+{
+    //int fh[32];//运算符
+    int yxj=8; //优先级有七级
+    //结合性 0表示左结合，1表示右结合
+    int pos=p;
+    int i,j;
+   
+    for(i=p; i<q; i++)
+    {
+        if(tokens[i].type==LEFT)
+        {
+            j=i+1;
+              while(check_parentheses(i,j)!=true)
+                  j++;
+            i=j+1;
+        }
+        judge_yxj(tokens[i].type,&yxj,&pos,i);
+       
+
+
+
+    }
+    return pos;
+
+}
+int judge_yxj(int type,int *yxj,int *pos,int i)
+{
+    if((type==NEG||type=='!'||type==DEREF)&&*yxj>7)
+    {
+        *yxj=7;
+        *pos=i;
+    }
+    else if((type=='*'||type=='/')&&*yxj>=6)
+    {
+        *yxj=6;
+        *pos=i;
+    }
+    else if((type=='+'||type=='-')&&*yxj>=5)
+    {
+        *yxj=5;
+        *pos=i;
+    }
+    else if((type==EQ||type==UEQ)&&*yxj>=4)
+    {
+        *yxj=4;
+        *pos=i;
+    }
+    else if(type==AND&&*yxj>=3)
+    {
+        *yxj=3;
+        *pos=i;
+    }
+    else if(type==OR&&*yxj>=2)
+    {
+        *yxj=2;
+        *pos=i;
+    }
+    else if(type=='='&&*yxj>=1)
+    {
+        *yxj=1;
+        *pos=i;
+    }
+    else return 0;
+
+    return 1;
+
+
+}
+
+
+
 
