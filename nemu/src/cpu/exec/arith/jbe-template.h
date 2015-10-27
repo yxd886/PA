@@ -17,9 +17,7 @@ static void do_execute() {
 		  #if DATA_BYTE == 2
 		     cpu.eip &= 0x0000ffff;
 		  #endif
-		  #if DATA_BYTE == 1
-		     cpu.eip &= 0x000000ff;
-		  #endif
+		  
 		}
 	print_asm_template1();
 }
