@@ -8,6 +8,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <elf.h>
+
+extern char *strtab;
+extern Elf32_Sym *symtab;
+extern  int nr_symtab_entry;
+
 
 enum {
 	NOTYPE = 256, EQ,UEQ,AND,OR,HEX,REG,NO,LEFT,RIGHT,NEG,DEREF,VAR
@@ -74,6 +80,8 @@ uint32_t  eval(int p,int q);
 bool check_parentheses(int p,int q);
 uint32_t find_op(int p,int q);
 int judge_yxj(int type,int *yxj,int *pos,int i);
+int judge_var(int token_flag);
+
 
 
 Token tokens[32];
@@ -191,7 +199,13 @@ uint32_t  eval(int p,int q)
     else if(p==q)
     {
         char *endptr;
-        if(tokens[p].type==HEX){
+		if(tokens[p].type==VAR)
+		{
+		return judge_var(p);
+	//return  strtol(tokens[p].str,&endptr,16);
+         }
+        if(tokens[p].type==HEX)
+		{
 	return  strtol(tokens[p].str,&endptr,16);
          }
 
@@ -371,5 +385,18 @@ int judge_yxj(int type,int *yxj,int *pos,int i)
 }
 
 
+int judge_var(int token_flag)//token_flag represent the position of the var in the array token
+{
+    int i=nr_symtab_entry;
+    for(;i>0;i--){
+        
+    if(!strcmp(tokens[token_flag].str,&strtab[(int)symtab[i-1].st_name ]))
+        return symtab[i-1].st_value;
+    
+    }
+    return -1;
+
+
+}
 
 
