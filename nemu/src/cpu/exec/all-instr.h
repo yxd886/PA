@@ -16,6 +16,8 @@
 #include "arith/test.h"
 #include "arith/je.h"
 #include "arith/cmp.h"
+#include "arith/jmp.h"
+
 
 
 
