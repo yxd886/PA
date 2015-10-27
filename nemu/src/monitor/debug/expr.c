@@ -171,6 +171,7 @@ uint32_t expr(char *e, bool *success) {
     uint32_t num;
     int p=0,q=nr_token-1;  //nr_token表示分词的个数
     num=eval(p,q);
+	*success = true;
     return num;
 }
 uint32_t  eval(int p,int q)
