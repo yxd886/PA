@@ -18,6 +18,8 @@
 #include "arith/cmp.h"
 #include "arith/jmp.h"
 #include "arith/jbe.h"
+#include "arith/add.h"
+
 
 
 
