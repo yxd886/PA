@@ -25,7 +25,7 @@ static void do_execute () {
 	if(result == 0)
 		cpu.ZF = 1;
 	
-	if((unsigned)result > (unsigned)(op_dest->val))
+	if((result > 0&&(op_dest->val)<0&&op_src->val>0)||(result < 0&&(op_dest->val)>0&&op_src->val<0))
 		{
 			cpu.OF = 1;
 		}
