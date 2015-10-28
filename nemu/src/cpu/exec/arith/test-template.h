@@ -29,6 +29,7 @@ static void do_execute () {
 	
 
 	print_asm_template2();
+		printf("CF= %d ZF=%d\n",cpu.CF,cpu.ZF);
 }
 
 make_instr_helper(i2a)
