@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <elf.h>
+
+extern char *strtab;
+extern Elf32_Sym *symtab;
+extern  int nr_symtab_entry;
 
 void cpu_exec(uint32_t);
 
@@ -41,6 +46,8 @@ static int cmd_p(char *args);
 static int cmd_x(char *args);
 static int cmd_w(char *args);
 static int cmd_d(char *args);
+static int cmd_bt(char *args);
+
 
 static struct {
 	char *name;
@@ -55,7 +62,8 @@ static struct {
 	{ "p", "get value of an expression, like:p $eax+1", cmd_p},
 	{ "x", "scan memory,x N EXPR", cmd_x },
 	{ "w", "set watchpoint like:w *0x2000", cmd_w },
-	{ "d", "delete watchpoint like d N", cmd_d }
+	{ "d", "delete watchpoint like d N", cmd_d },
+	{ "bt", "print stackframe", cmd_bt }
 	/* TODO: Add more commands */
 
 };
@@ -171,6 +179,28 @@ static int cmd_d(char *args){
 		printf("delete failed,no this watchpoint or args error\n");
 	return 0;
 }
+static int cmd_bt(char *args){
+	
+	int i=nr_symtab_entry;
+	for(;i>0;i--){
+		if(ELF32_ST_TYPE(symtab[i-1].st_info)==STT_FUNC){
+			printf("函数名是： %s	函数地址是 %d，参数是%d\t %d\t,%d\t,%d\t %d\t\n",&strtab[symtab[i-1].st_name],symtab[i-1].st_value,
+		swaddr_read(cpu.esp+8,4),swaddr_read(cpu.esp+12,4),swaddr_read(cpu.esp+16,4),swaddr_read(cpu.esp,4),swaddr_read(cpu.esp+4,4));
+	
+	
+	
+		}
+	
+	
+	
+	}
+	if(i==0)
+	printf("stack is not exit\n");
+	
+	return 0;
+	
+}
+
 
 static int cmd_help(char *args) {
 	/* extract the first argument */
