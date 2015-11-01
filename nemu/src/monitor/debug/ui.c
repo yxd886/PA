@@ -182,9 +182,11 @@ static int cmd_d(char *args){
 static int cmd_bt(char *args){
 	
 	int i=nr_symtab_entry;
+	if(i==0)
+	printf("stack is not exit\n");
 	for(;i>0;i--){
 		if(ELF32_ST_TYPE(symtab[i-1].st_info)==STT_FUNC){
-			printf("fuc name: %s	fuc add: %d£¬parameter:%d\t %d\t,%d\t,%d\t %d\t\n",&strtab[symtab[i-1].st_name],symtab[i-1].st_value,
+			printf("fuc name: %s	fuc add: %d  parameter:%d\t %d\t,%d\t,%d\t %d\t\n",&strtab[symtab[i-1].st_name],symtab[i-1].st_value,
 		swaddr_read(cpu.esp+8,4),swaddr_read(cpu.esp+12,4),swaddr_read(cpu.esp+16,4),swaddr_read(cpu.esp,4),swaddr_read(cpu.esp+4,4));
 	
 	
@@ -194,8 +196,7 @@ static int cmd_bt(char *args){
 	
 	
 	}
-	if(i==0)
-	printf("stack is not exit\n");
+	
 	
 	return 0;
 	

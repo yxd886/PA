@@ -2,6 +2,8 @@
 
 #include "data-mov/mov.h"
 #include "data-mov/xchg.h"
+#include "data-mov/movsx.h"
+#include "data-mov/movzx.h"
 
 #include "arith/dec.h"
 #include "arith/inc.h"
@@ -11,23 +13,11 @@
 #include "arith/idiv.h"
 #include "arith/div.h"
 #include "arith/sub.h"
-#include "arith/call.h"
+#include "arith/sbb.h"
 #include "arith/push.h"
-#include "arith/test.h"
-#include "arith/je.h"
-#include "arith/cmp.h"
-#include "arith/jmp.h"
-#include "arith/jbe.h"
 #include "arith/add.h"
-#include "arith/leave.h"
-
-
-
-
-
-
-
-
+#include "arith/adc.h"
+#include "arith/pop.h"
 
 #include "logic/and.h"
 #include "logic/or.h"
@@ -37,9 +27,53 @@
 #include "logic/shl.h"
 #include "logic/shr.h"
 #include "logic/shrd.h"
+#include "logic/test.h"
+#include "logic/je.h"
+#include "logic/cmp.h"
+#include "logic/jbe.h"
 
 #include "string/rep.h"
 
 #include "misc/misc.h"
 
 #include "special/special.h"
+
+#include "jump/call.h"
+#include "jump/jmp.h"
+#include "jump/ja.h"
+#include "jump/jae.h"
+#include "jump/jb.h"
+#include "jump/jcxz.h"
+#include "jump/jg.h"
+#include "jump/jge.h"
+#include "jump/jl.h"
+#include "jump/jle.h"
+#include "jump/jne.h"
+#include "jump/jno.h"
+#include "jump/jnp.h"
+#include "jump/jns.h"
+#include "jump/jo.h"
+#include "jump/jp.h"
+#include "jump/js.h"
+
+
+#include "setcc/seta.h"
+#include "setcc/setae.h"
+#include "setcc/setb.h"
+#include "setcc/setbe.h"
+#include "setcc/setc.h"
+#include "setcc/sete.h"
+#include "setcc/setg.h"
+#include "setcc/setge.h"
+#include "setcc/setl.h"
+#include "setcc/setle.h"
+#include "setcc/setne.h"
+#include "setcc/setnle.h"
+#include "setcc/setno.h"
+#include "setcc/setnp.h"
+#include "setcc/setns.h"
+#include "setcc/seto.h"
+#include "setcc/setp.h"
+#include "setcc/setpo.h"
+#include "setcc/sets.h"
+
