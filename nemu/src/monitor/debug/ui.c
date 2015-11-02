@@ -182,8 +182,9 @@ static int cmd_d(char *args){
 static int cmd_bt(char *args){
 	
 	int i=nr_symtab_entry;
-	if(i==0)
+	if(i<=0)
 	printf("stack is not exit\n");
+	else
 	for(;i>0;i--){
 		if(ELF32_ST_TYPE(symtab[i-1].st_info)==STT_FUNC){
 			printf("fuc name: %s	fuc add: %d  parameter:%d\t %d\t,%d\t,%d\t %d\t\n",&strtab[symtab[i-1].st_name],symtab[i-1].st_value,
