@@ -4,19 +4,16 @@
 
 static void do_execute(){
 
-  #if DATA_BYTE==1
-    OPERAND_W(op_dest,MEM_R(cpu.esp));
-    cpu.esp+=2;
-  #endif
+ 
 
 #if  DATA_BYTE==2
-    OPERAND_W(op_dest,MEM_R(cpu.esp));
+    OPERAND_W(op_src,MEM_R(cpu.esp));
     cpu.esp+=2;
-#endif
 
-#if DATA_BYTE==4
 
-OPERAND_W(op_dest,MEM_R(cpu.esp));
+#elif DATA_BYTE==4
+
+OPERAND_W(op_src,MEM_R(cpu.esp));
 cpu.esp+=4;
 #endif
 
