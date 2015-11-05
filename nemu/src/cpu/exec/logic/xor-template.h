@@ -15,11 +15,7 @@ static void do_execute () {
 		 cpu.ZF=1;
 	else cpu.ZF=0;
 	
-	if(result>0)
-        cpu.SF=0;
-    else
-        if(result<=0)
-            cpu.SF=1;
+	cpu.SF=MSB(result);
 	if(result&0x01)
         PF_flag++;
     if(result&0x02)
