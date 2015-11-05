@@ -3,7 +3,7 @@
 #define instr jle
 
 static void do_execute(){
-   if(cpu.ZF==1&&cpu.SF!=cpu.OF){
+   if(cpu.ZF==1||cpu.SF!=cpu.OF){
     #if DATA_BYTE==1
         uint8_t val= (uint8_t)(cpu.eip&0xFF);
         val+=(uint8_t)op_src->val;
