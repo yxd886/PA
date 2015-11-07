@@ -32,7 +32,7 @@ static void do_execute () {
         cpu.CF=1;
     else cpu.CF=0;
     #elif DATA_BYTE==4
-    if((unsigned)op_dest->val+(unsigned)(op_src->val)<=4294967296)
+    if((unsigned)op_dest->val+(unsigned)(op_src->val)>=4294967296)
         cpu.CF=1;
     else cpu.CF=0;
     #endif // DATA_BYTE
