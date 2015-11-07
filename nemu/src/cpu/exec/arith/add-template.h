@@ -12,11 +12,7 @@ static void do_execute () {
 	int PF_flag=0;
 
 
-	if(result>0)
-        cpu.SF=0;
-    else
-        if(result<=0)
-            cpu.SF=1;
+	cpu.SF=MSB(result);
 
    if(result==0){
         cpu.ZF=1;

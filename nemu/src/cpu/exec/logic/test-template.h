@@ -4,7 +4,7 @@
 
 
 static void do_execute(){
-    DATA_TYPE result=op_dest->val&op_src->val;
+    DATA_TYPE result=op_dest->val & op_src->val;
     cpu.CF=0;
     cpu.OF=0;
     int PF_flag=0;
