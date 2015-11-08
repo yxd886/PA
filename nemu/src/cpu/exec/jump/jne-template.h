@@ -1,33 +1,25 @@
 #include "cpu/exec/template-start.h"
-#include "cpu/reg.h"
+
 #define instr jne
 
-static void do_execute(){
-   if(cpu.ZF==0){
-    #if DATA_BYTE==1
-        uint8_t val= (uint8_t)(cpu.eip&0xFF);
-        val+=(uint8_t)op_src->val;
-        cpu.eip=(cpu.eip&0xFFFFFF00)+val;
-    #elif   DATA_BYTE==2
-        uint16_t val= (uint16_t)(cpu.eip&0xFFFF);
-        val+=(uint16_t)op_src->val;
-        cpu.eip=(cpu.eip&0xFFFF0000)+val;
-    #else
-
-        cpu.eip=cpu.eip+op_src->val;
-    #endif // DATA_BYTE
-
-    }
-
-
-print_asm_template1();
-
-
-
-
+static void do_execute() {
+	if (cpu.ZF == 0)
+	{
+		if (MSB(op_src->val)) {
+			#if DATA_BYTE == 1
+				cpu.eip += 0xffffff00 | op_src->val;
+			#elif DATA_BYTE == 2
+				cpu.eip += 0xffff0000 | op_src->val;
+			#else
+				cpu.eip += op_src->val;
+			#endif
+		}
+		else 
+			cpu.eip +=op_src->val;
+	}
+	print_asm_template1();
 }
 
-
-
 make_instr_helper(i)
+
 #include "cpu/exec/template-end.h"

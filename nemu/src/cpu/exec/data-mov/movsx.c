@@ -12,5 +12,4 @@
 #include "movsx-template.h"
 #undef DATA_BYTE
 
-
-make_helper_v(movsx_rm2r)
+/* for instruction encoding overloading */

@@ -24,7 +24,7 @@ make_helper(concat(decode_i_, SUFFIX)) {
 #if DATA_BYTE == 1 || DATA_BYTE == 4
 /* sign immediate */
 make_helper(concat(decode_si_, SUFFIX)) {
-	op_src->type = OP_TYPE_IMM;
+	op_src->type = OP_TYPE_SIMM;
 
 	/* TODO: Use instr_fetch() to read ``DATA_BYTE'' bytes of memory pointed 
 	 * by ``eip''. Interpret the result as an signed immediate, and assign
@@ -32,8 +32,9 @@ make_helper(concat(decode_si_, SUFFIX)) {
 	 *
 	op_src->simm = ???
 	 */
-	op_src->simm = (int)instr_fetch(eip, DATA_BYTE);
+	op_src->simm = instr_fetch(eip, DATA_BYTE);
 
+	//panic("please implement me");
 
 	op_src->val = op_src->simm;
 
@@ -90,6 +91,10 @@ make_helper(concat(decode_r2rm_, SUFFIX)) {
  * Gv <- Ev
  */
 make_helper(concat(decode_rm2r_, SUFFIX)) {
+	return decode_rm_internal(eip, op_src, op_dest);
+}
+
+make_helper(concat(decode_rm2a_, SUFFIX)) {
 	return decode_rm_internal(eip, op_src, op_dest);
 }
 

@@ -3,6 +3,8 @@
 #include <string.h>
 #include <elf.h>
 
+void lnaddr_write(lnaddr_t, size_t, uint32_t);
+
 #define ELF_OFFSET_IN_DISK 0
 
 #ifdef HAS_DEVICE
@@ -30,9 +32,18 @@ uint32_t loader() {
 
 	elf = (void*)buf;
      ph=(Elf32_Phdr *)elf->e_phoff;
-	/* TODO: fix the magic number with the correct one */
+	/* TODO: fix the magic number with correct one */
 	//const uint32_t elf_magic = 0xBadC0de;
-    const uint32_t elf_magic =( uint32_t)((( uint32_t*)buf)[0]);
+	union{
+		uint32_t a;
+		uint8_t b[4];
+	} aa;
+	aa.b[0] = buf[0];
+	aa.b[1] = buf[1];
+	aa.b[2] = buf[2];
+	aa.b[3] = buf[3];
+	
+    const uint32_t elf_magic = aa.a;
 	uint32_t *p_magic = (void *)buf;
 	nemu_assert(*p_magic == elf_magic);
     int phind = elf->e_phnum;
@@ -49,7 +60,7 @@ uint32_t loader() {
                 for(i = ph->p_filesz; i <= 0; i -= 4096){
                 ramdisk_read( buf, ph->p_offset, i > 4096 ? 4096 : i);
                 ph->p_offset += 4096;
-                swaddr_write(ph->p_vaddr, i> 4096 ? 4096 : i, buf);
+                lnaddr_write(ph->p_vaddr, i> 4096 ? 4096 : i, buf);
                 ph ->p_vaddr += 4096;
                 }
 			/* TODO: zero the memory region
@@ -57,16 +68,15 @@ uint32_t loader() {
 			 */
 
              int j;
-			 for( j= 4096; j ; j--)
+			 for( j= 0; j < 4096 ; ++j)
 			 	{
-			 	*buf =0;
-				buf=buf+1;
+			 		buf[j] = 0;
 			 	}
                     
-            swaddr_write(ph->p_vaddr + i, -i, buf);
+            lnaddr_write(ph->p_vaddr + i, -i, buf);
 			
             for(j = ph->p_memsz - ph->p_filesz  + i;j<=0; j -= 4096){
-                swaddr_write(ph->p_vaddr, j> 4096 ? 4096 : j, buf);
+                lnaddr_write(ph->p_vaddr, j> 4096 ? 4096 : j, buf);
                 ph ->p_vaddr += 4096;
             }
 
