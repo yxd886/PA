@@ -4,15 +4,14 @@
 
 char *exec_file = NULL;
 
- char *strtab = NULL;
- Elf32_Sym *symtab = NULL;
- int nr_symtab_entry;
+char *strtab = NULL;
+Elf32_Sym *symtab = NULL;
+int nr_symtab_entry;
 
 void load_elf_tables(int argc, char *argv[]) {
 	int ret;
 	Assert(argc == 2, "run NEMU with format 'nemu [program]'");
 	exec_file = argv[1];
-
 	FILE *fp = fopen(exec_file, "rb");
 	Assert(fp, "Can not open '%s'", exec_file);
 
@@ -20,7 +19,8 @@ void load_elf_tables(int argc, char *argv[]) {
 	/* Read the first 4096 bytes from the exec_file.
 	 * They should contain the ELF header and program headers. */
 	ret = fread(buf, 4096, 1, fp);
-	assert(ret == 1);
+	if (!feof(fp)) 
+		assert(ret == 1);
 
 	/* The first several bytes contain the ELF header. */
 	Elf32_Ehdr *elf = (void *)buf;
