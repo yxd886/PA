@@ -101,7 +101,7 @@ static int cmd_info(char *args){
 			printf("cpu.VM = 0x%08x\n", cpu.VM);
 			printf("cpu.RF = 0x%08x\n", cpu.RF);
 			printf("cpu.NT = 0x%08x\n", cpu.NT);
-			printf("cpu.IOPL = 0x%08x\n", cpu.IOPL);
+			printf("cpu.IPOL = 0x%08x\n", cpu.IPOL);
 			printf("cpu.OF = 0x%08x\n", cpu.OF);
 			printf("cpu.DF = 0x%08x\n", cpu.DF);
 			printf("cpu.IF = 0x%08x\n", cpu.IF);
