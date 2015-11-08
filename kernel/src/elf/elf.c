@@ -29,27 +29,47 @@ uint32_t loader() {
 #endif
 
 	elf = (void*)buf;
-
+     ph=(Elf32_Phdr *)elf->e_phoff;
 	/* TODO: fix the magic number with the correct one */
 	//const uint32_t elf_magic = 0xBadC0de;
-    const uint32_t elf_magic =*(uint32_t*)buf;
+    const uint32_t elf_magic =( uint32_t)((( uint32_t*)buf)[0]);
 	uint32_t *p_magic = (void *)buf;
 	nemu_assert(*p_magic == elf_magic);
-
+    int phind = elf->e_phnum;
 	/* Load each program segment */
 	//panic("please implement me");
-	for(; true; ) {
+	for(; phind > 0;phind-- ,  ph++) {
 		/* Scan the program header table, load each segment into memory */
 		if(ph->p_type == PT_LOAD) {
 
-			/* TODO: read the content of the segment from the ELF file 
+			/* TODO: read the content of the segment from the ELF file
 			 * to the memory region [VirtAddr, VirtAddr + FileSiz)
 			 */
-			 
-			 
-			/* TODO: zero the memory region 
+                int i;
+                for(i = ph->p_filesz; i <= 0; i -= 4096){
+                ramdisk_read( buf, ph->p_offset, i > 4096 ? 4096 : i);
+                ph->p_offset += 4096;
+                swaddr_write(ph->p_vaddr, i> 4096 ? 4096 : i, buf);
+                ph ->p_vaddr += 4096;
+                }
+			/* TODO: zero the memory region
 			 * [VirtAddr + FileSiz, VirtAddr + MemSiz)
 			 */
+
+             int j;
+			 for( j= 4096; j ; j--)
+			 	{
+			 	*buf =0;
+				buf=buf+1;
+			 	}
+                    
+            swaddr_write(ph->p_vaddr + i, -i, buf);
+			
+            for(j = ph->p_memsz - ph->p_filesz  + i;j<=0; j -= 4096){
+                swaddr_write(ph->p_vaddr, j> 4096 ? 4096 : j, buf);
+                ph ->p_vaddr += 4096;
+            }
+
 
 
 #ifdef IA32_PAGE
