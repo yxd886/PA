@@ -1,5 +1,6 @@
 #include "cpu/exec/helper.h"
 #include "cpu/decode/modrm.h"
+#include "nemu.h"
 
 make_helper(nop) {
 	print_asm("nop");
@@ -24,36 +25,15 @@ make_helper(lea) {
 	return 1 + len;
 }
 
-make_helper(leave) {
-	cpu.esp = cpu.ebp;
-	cpu.ebp = swaddr_read(cpu.esp, 4);
-	cpu.esp += 4;
-
-	print_asm("leave");
-
-	return 1;
-}
-
-make_helper(ret) {
-	cpu.eip = swaddr_read(cpu.esp, 4);
-	cpu.esp += 4;
-
-	print_asm("ret");
-
-	return 1 + decode_i_l(cpu.eip);
-}
-
-make_helper(cltd) {
-	if(cpu.eax >> 31)
-		cpu.edx = 0xffffffff;
-	else
-		cpu.edx = 0x00000000;
-	
-	return 1;
-}
-
 make_helper(cld) {
 	cpu.DF = 0;
+	return 1;
+}
 
+make_helper(cwd_cdq) {
+	if (cpu.eax >> 31 == 1) 
+		cpu.edx = 0xffffffff;
+	else
+		cpu.edx = 0;
 	return 1;
 }

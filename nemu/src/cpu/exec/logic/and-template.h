@@ -4,15 +4,14 @@
 
 static void do_execute () {
 	DATA_TYPE result = op_dest->val & op_src->val;
-
-	uint8_t b = result & 0x000000ff;
-	cpu.SF = MSB(result);
-	cpu.ZF = result ? 0 : 1;
-	cpu.OF = 0;
-	cpu.PF = ((b&1)^(b>>1&1)^(b>>2&1)^(b>>3&1)^(b>>4&1)^(b>>5&1)^(b>>6&1)^(b>>7&1)) ? 1 : 0;
-	cpu.CF = 0;
-	
 	OPERAND_W(op_dest, result);
+
+	cpu.CF = 0;
+	cpu.OF = 0;
+	cpu.PF = ~( (result & 0x1) & ((result>>1) & 0x1) & ((result>>2) & 0x1) & ((result>>3) & 0x1) & 
+	((result>>4) & 0x1) & ((result>>5) & 0x1) & ((result>>6) & 0x1) & ((result>>7) & 0x1));
+	cpu.SF = MSB(result);
+	cpu.ZF = (result == 0); 
 
 	print_asm_template2();
 }

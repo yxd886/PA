@@ -23,6 +23,10 @@ static void welcome() {
 			exec_file);
 }
 
+static void init_eflags() {
+	cpu.eflags = 0x00000002;
+}
+
 void init_monitor(int argc, char *argv[]) {
 	/* Perform some global initialization */
 
@@ -74,25 +78,20 @@ static void load_entry() {
 	fclose(fp);
 }
 
-static void init_eflags() {
-	cpu.eflags = 0x00000002;
-}
-
 void restart() {
 	/* Perform some initialization to restart a program */
 #ifdef USE_RAMDISK
 	/* Read the file with name `argv[1]' into ramdisk. */
 	init_ramdisk();
 #endif
+	/*initial EFLAGS*/
+	init_eflags();
 
 	/* Read the entry code into memory. */
 	load_entry();
 
 	/* Set the initial instruction pointer. */
 	cpu.eip = ENTRY_START;
-
-	/* Initialize the EFLAGS registers */
-	init_eflags();
 
 	/* Initialize DRAM. */
 	init_ddr3();

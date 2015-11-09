@@ -2,26 +2,16 @@
 
 #define instr movsx
 
-static void do_execute() {
-
-	uint32_t result = 0;
-
-	// printf("%x\n", ops_decoded.opcode);
-	switch (ops_decoded.opcode & 0xff){
-		case 0xbe:
-			result = (uint32_t)(int32_t)(int8_t)op_src->val;
-			// printf("0xbe %x\n", result);
-			break;
-		case 0xbf:
-			result = (uint32_t)(int32_t)(int16_t)op_src->val;
-			// printf("0xbf %x\n", result);
-			break;
-		default:
-			// printf("default %u\n", result);
-			break;
+static void do_execute () {
+	if (MSB(op_src->val))
+	{
+		#if DATA_BYTE == 1
+			op_src->val = 0xffffff00 | op_src->val;
+		#elif DATA_BYTE == 2
+			op_src->val = 0xffff0000 | op_src->val;
+		#endif
 	}
-
-	OPERAND_W(op_dest, result);
+	write_operand_l(op_dest, op_src->val);
 	print_asm_template2();
 }
 

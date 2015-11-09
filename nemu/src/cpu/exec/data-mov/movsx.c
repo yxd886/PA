@@ -13,5 +13,3 @@
 #undef DATA_BYTE
 
 /* for instruction encoding overloading */
-
-make_helper_v(movsx_rm2r)

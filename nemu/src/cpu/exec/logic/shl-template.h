@@ -7,9 +7,7 @@ static void do_execute () {
 	DATA_TYPE dest = op_dest->val;
 
 	uint8_t count = src & 0x1f;
-	// printf("before shl: %x\n", dest);
 	dest <<= count;
-	// printf("after shl: %x\n", dest);
 	OPERAND_W(op_dest, dest);
 
 	/* There is no need to update EFLAGS, since no other instructions 
