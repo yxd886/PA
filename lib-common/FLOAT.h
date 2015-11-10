@@ -4,28 +4,31 @@
 #include "trap.h"
 
 typedef int FLOAT;
+typedef struct floatStruct
+{
+	unsigned int tailCode		:23;
+	unsigned int orderCode		:8;
+	unsigned int sign		:1;
+}FloatStruct;
 
 static inline int F2int(FLOAT a) {
-	//nemu_assert(0);
-	if(a&80000000==0)
-	return (a>>16)&0x7FFF;
-     else
-	return -((a>>16)&0x7FFF);
+	int result = a>>16;
+	return result;
 }
 
 static inline FLOAT int2F(int a) {
-	//nemu_assert(0);
-	return (FLOAT)a*65536;
+	FLOAT result = a<<16;
+	return result;
 }
 
 static inline FLOAT F_mul_int(FLOAT a, int b) {
-	//nemu_assert(0);
-	return (FLOAT)(a*b);
+	FLOAT result = a*b;
+	return result;
 }
 
 static inline FLOAT F_div_int(FLOAT a, int b) {
-	//nemu_assert(0);
-	return (FLOAT)(a/b);
+	FLOAT result = a/b;
+	return result;
 }
 
 FLOAT f2F(float);
