@@ -3,8 +3,6 @@
 #include <string.h>
 #include <elf.h>
 
-void lnaddr_write(lnaddr_t, size_t, uint32_t);
-
 #define ELF_OFFSET_IN_DISK 0
 
 #ifdef HAS_DEVICE
@@ -21,7 +19,7 @@ uint32_t get_ucr3();
 uint32_t loader() {
 	Elf32_Ehdr *elf;
 	Elf32_Phdr *ph = NULL;
-
+	int i;
 	uint8_t buf[4096];
 
 #ifdef HAS_DEVICE
@@ -31,57 +29,19 @@ uint32_t loader() {
 #endif
 
 	elf = (void*)buf;
-     ph=(Elf32_Phdr *)elf->e_phoff;
-	/* TODO: fix the magic number with correct one */
-	//const uint32_t elf_magic = 0xBadC0de;
-	union{
-		uint32_t a;
-		uint8_t b[4];
-	} aa;
-	aa.b[0] = buf[0];
-	aa.b[1] = buf[1];
-	aa.b[2] = buf[2];
-	aa.b[3] = buf[3];
 	
-    const uint32_t elf_magic = aa.a;
+	/* TODO: fix the magic number with the correct one */
+	const uint32_t elf_magic = 0x464c457f;
 	uint32_t *p_magic = (void *)buf;
 	nemu_assert(*p_magic == elf_magic);
-    int phind = elf->e_phnum;
+
 	/* Load each program segment */
-	//panic("please implement me");
-	for(; phind > 0;phind-- ,  ph++) {
+	ph = (Elf32_Phdr *)(buf + elf->e_phoff);
+	for(i=0; i<elf->e_phnum;i++) {
 		/* Scan the program header table, load each segment into memory */
 		if(ph->p_type == PT_LOAD) {
-
-			/* TODO: read the content of the segment from the ELF file
-			 * to the memory region [VirtAddr, VirtAddr + FileSiz)
-			 */
-                int i;
-                for(i = ph->p_filesz; i <= 0; i -= 4096){
-                ramdisk_read( buf, ph->p_offset, i > 4096 ? 4096 : i);
-                ph->p_offset += 4096;
-                lnaddr_write(ph->p_vaddr, i> 4096 ? 4096 : i, buf);
-                ph ->p_vaddr += 4096;
-                }
-			/* TODO: zero the memory region
-			 * [VirtAddr + FileSiz, VirtAddr + MemSiz)
-			 */
-
-             int j;
-			 for( j= 0; j < 4096 ; ++j)
-			 	{
-			 		buf[j] = 0;
-			 	}
-                    
-            lnaddr_write(ph->p_vaddr + i, -i, buf);
-			
-            for(j = ph->p_memsz - ph->p_filesz  + i;j<=0; j -= 4096){
-                lnaddr_write(ph->p_vaddr, j> 4096 ? 4096 : j, buf);
-                ph ->p_vaddr += 4096;
-            }
-
-
-
+			 ramdisk_read((uint8_t *)(ph->p_vaddr), ph->p_offset, ph->p_filesz);
+			 memset((void *)(ph->p_vaddr+ph->p_filesz), 0, ph->p_memsz - ph->p_filesz);
 #ifdef IA32_PAGE
 			/* Record the program break for future use. */
 			extern uint32_t brk;
@@ -89,6 +49,7 @@ uint32_t loader() {
 			if(brk < new_brk) { brk = new_brk; }
 #endif
 		}
+		++ph;
 	}
 
 	volatile uint32_t entry = elf->e_entry;
