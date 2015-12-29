@@ -98,7 +98,7 @@ static int cmd_info(char *args){
 			printf("cpu.esi = 0x%08x\n", cpu.esi);
 			printf("cpu.edi = 0x%08x\n", cpu.edi);
 			printf("cpu.eip = 0x%08x\n", cpu.eip);
-			printf("cpu.VM = 0x%08x\n", cpu.VM);
+			printf("cpu.VM =  0x%08x\n", cpu.VM);
 			printf("cpu.RF = 0x%08x\n", cpu.RF);
 			printf("cpu.NT = 0x%08x\n", cpu.NT);
 			printf("cpu.IOPL = 0x%08x\n", cpu.IPOL);
