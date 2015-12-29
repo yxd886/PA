@@ -3,20 +3,24 @@
 #define instr and
 
 static void do_execute () {
-	if (op_src->type == OP_TYPE_SIMM && (op_src->simm >> 7) == 1) {
-		op_src->simm = 0xffffff00 | op_src->simm;
-		op_src->val = op_src->simm;
-	}
 	DATA_TYPE result = op_dest->val & op_src->val;
-	OPERAND_W(op_dest, result);
+
+	/* TODO: Update EFLAGS. */
+	//panic("please implement me");
+	//set EFLAGS's value
+	cpu.ZF = result ? 0 : 1;
 	cpu.CF = 0;
 	cpu.OF = 0;
-	cpu.PF = ~( (result & 0x1) & ((result>>1) & 0x1) & ((result>>2) & 0x1) & ((result>>3) & 0x1) & 
-	((result>>4) & 0x1) & ((result>>5) & 0x1) & ((result>>6) & 0x1) & ((result>>7) & 0x1));
+	
+	uint8_t low_b = result & 0xff;
+	cpu.PF = !((low_b & 0x01)^(low_b>>1 & 0x01)^(low_b>>2 & 0x01)^(low_b>>3 & 0x01)^(low_b>>4 & 0x01)^(low_b>>5 & 0x01)^(low_b>>6 & 0x01)^(low_b>>7 & 0x01));
+
 	cpu.SF = MSB(result);
-	cpu.ZF = (result == 0); 
+	
+	OPERAND_W(op_dest, result);
 
 	print_asm_template2();
+
 }
 
 make_instr_helper(i2a)

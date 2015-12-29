@@ -75,7 +75,7 @@ static int cmd_si(char *args){
 	if(NULL == args)
 		cpu_exec(1);
 	else{
-		number = atoi(args);	
+		number = atoi(args);
 		if(number > 0)
 			cpu_exec(number);
 		else
@@ -114,7 +114,7 @@ static int cmd_info(char *args){
 		}
 		else if('w' == args[0])
 			print_wp();
-		else 
+		else
 			printf("info r print register information, info w print watchpoint information\n");
 	}
 	return 0;
@@ -137,7 +137,7 @@ static int cmd_p(char *args){
 
 static int cmd_x(char *args){
 	char *csize = strtok(args, " ");
-	char *caddr = strtok(NULL, " "); 
+	char *caddr = strtok(NULL, " ");
 	int size = atoi(csize);
 	int addr;
 	int i;
@@ -180,7 +180,7 @@ static int cmd_d(char *args){
 	return 0;
 }
 static int cmd_bt(char *args){
-	
+
 	int i=nr_symtab_entry;
 	if(i<=0)
 	printf("stack is not exit\n");
@@ -189,18 +189,18 @@ static int cmd_bt(char *args){
 		if(ELF32_ST_TYPE(symtab[i-1].st_info)==STT_FUNC){
 			printf("fuc name: %s	fuc add: %d  parameter:%d\t %d\t,%d\t,%d\t %d\t\n",&strtab[symtab[i-1].st_name],symtab[i-1].st_value,
 		swaddr_read(cpu.esp+8,4),swaddr_read(cpu.esp+12,4),swaddr_read(cpu.esp+16,4),swaddr_read(cpu.esp,4),swaddr_read(cpu.esp+4,4));
-	
-	
-	
+
+
+
 		}
-	
-	
-	
+
+
+
 	}
-	
-	
+
+
 	return 0;
-	
+
 }
 
 
