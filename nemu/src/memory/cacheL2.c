@@ -14,7 +14,7 @@
 
 uint32_t dram_read(hwaddr_t, size_t);
 void dram_write(hwaddr_t, size_t, uint32_t);
-void update_cache(hwaddr_t, void *, size_t);
+void update_cacheL2(hwaddr_t, void *, size_t);
 void update_dram(hwaddr_t, void *, size_t);
 
 typedef union {
@@ -71,7 +71,7 @@ uint32_t L2cache_read(hwaddr_t addr,  size_t len) {
 			L2cache[caddr.r][i].f = caddr.f;
 			L2cache[caddr.r][i].valid = 1;
 			L2cache[caddr.r][i].dirty = 0;
-			update_cache(addr, L2cache[caddr.r][i].block, BLOCK_SIZE);
+			update_cacheL2(addr, L2cache[caddr.r][i].block, BLOCK_SIZE);
 			return dram_read(addr, len);
 		} 
 	}
@@ -88,7 +88,7 @@ uint32_t L2cache_read(hwaddr_t addr,  size_t len) {
 	L2cache[caddr.r][i].f = caddr.f;
 	L2cache[caddr.r][i].valid = 1;
 	L2cache[caddr.r][i].dirty = 0;
-	update_cache(addr, L2cache[caddr.r][i].block, BLOCK_SIZE);
+	update_cacheL2(addr, L2cache[caddr.r][i].block, BLOCK_SIZE);
 	return dram_read(addr, len);
 }
 
@@ -105,29 +105,21 @@ void L2cache_write(hwaddr_t addr, size_t len, uint32_t data) {
 		}
 	}
 	dram_write(addr, len, data);
-	// for (i=0;i<Q_WIDTH;i++) {
-	// 	if (L2cache[caddr.r][i].valid == 0) {
-	// 		L2cache[caddr.r][i].q = caddr.q;
-	// 		L2cache[caddr.r][i].f = caddr.f;
-	// 		L2cache[caddr.r][i].valid = 1;
-	// 		L2cache[caddr.r][i].dirty = 0;
-	// 		update_cache(addr, L2cache[caddr.r][i].block, BLOCK_SIZE);
-	// 		return ;
-	// 	} 
-	// }
-	// srand(time(0));
-	// i = rand()%BLOCK_NUM;
-	// if (L2cache[caddr.r][i].dirty == 1) {
-	// 	dram_addr.q = L2cache[caddr.r][i].q;
-	// 	dram_addr.r = caddr.r;
-	// 	dram_addr.f = L2cache[caddr.r][i].f;
-	// 	dram_addr.w = 0;
-	// 	update_dram(dram_addr.addr, L2cache[caddr.r][i].block, BLOCK_SIZE);
-	// }
-	// L2cache[caddr.r][i].q = caddr.q;
-	// L2cache[caddr.r][i].f = caddr.f;
-	// L2cache[caddr.r][i].valid = 1;
-	// L2cache[caddr.r][i].dirty = 0;
-	// update_cache(addr, L2cache[caddr.r][i].block, BLOCK_SIZE);
-	// return ;
+	
+	
 }
+void update_cacheL1(hwaddr_t addr, void *data, size_t len) {
+	int i;
+	L2cache_addr caddr;
+	caddr.addr = addr;
+	while(1) {
+		for (i=0;i<Q_WIDTH;i++) {
+			if (L2cache[caddr.r][i].q == caddr.q && L2cache[caddr.r][i].f == caddr.f && L2cache[caddr.r][i].valid == 1) {
+				memcpy(data, L2cache[caddr.r][i].block, len);
+				return;
+			} 
+		}
+		L2cache_read(addr, 1);
+	}
+}
+

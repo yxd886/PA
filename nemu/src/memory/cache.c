@@ -14,7 +14,7 @@
 
 uint32_t L2cache_read(hwaddr_t, size_t);
 void L2cache_write(hwaddr_t, size_t, uint32_t);
-void update_cache(hwaddr_t, void *, size_t);
+void update_cacheL1(hwaddr_t, void *, size_t);
 
 typedef union {
 	struct {
@@ -67,7 +67,7 @@ uint32_t cache_read(hwaddr_t addr,  size_t len) {
 			cache[caddr.r][i].q = caddr.q;
 			cache[caddr.r][i].f = caddr.f;
 			cache[caddr.r][i].valid = 1;
-			update_cache(addr, cache[caddr.r][i].block, BLOCK_SIZE);
+			update_cacheL1(addr, cache[caddr.r][i].block, BLOCK_SIZE);
 			return L2cache_read(addr, len);
 		} 
 	}
@@ -76,7 +76,7 @@ uint32_t cache_read(hwaddr_t addr,  size_t len) {
 	cache[caddr.r][i].q = caddr.q;
 	cache[caddr.r][i].f = caddr.f;
 	cache[caddr.r][i].valid = 1;
-	update_cache(addr, cache[caddr.r][i].block, BLOCK_SIZE);
+	update_cacheL1(addr, cache[caddr.r][i].block, BLOCK_SIZE);
 	return L2cache_read(addr, len);
 }
 
