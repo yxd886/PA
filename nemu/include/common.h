@@ -9,7 +9,6 @@
 #define DEBUG
 #define LOG_FILE
 
-
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
