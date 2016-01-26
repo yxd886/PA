@@ -9,8 +9,7 @@
 #include <elf.h>
 
 void cpu_exec(uint32_t);
-void pretend_cache_read(hwaddr_t , size_t );
-uint32_t cache_read(hwaddr_t, size_t);
+
 extern char *strtab;
 extern Elf32_Sym *symtab;
 extern  int nr_symtab_entry;
@@ -48,8 +47,7 @@ static int cmd_x(char *args);
 static int cmd_w(char *args);
 static int cmd_d(char *args);
 static int cmd_bt(char *args);
-static int cmd_cache(char *args);
-static int cmd_realcache(char *args);
+
 
 
 static struct {
@@ -66,9 +64,8 @@ static struct {
 	{ "x", "scan memory,x N EXPR", cmd_x },
 	{ "w", "set watchpoint like:w *0x2000", cmd_w },
 	{ "d", "delete watchpoint like d N", cmd_d },
-	{ "bt", "print stackframe", cmd_bt },
-         { "cache", "cache ADDR", cmd_cache},
-	{ "realcache", "similar to cache but real read addr", cmd_realcache}
+	{ "bt", "print stackframe", cmd_bt }
+    
 	/* TODO: Add more commands */
 
 };
@@ -207,35 +204,9 @@ static int cmd_bt(char *args){
 	return 0;
 
 }
-static int cmd_cache(char *args) {
-	bool success;
-	int addr;
-	if (NULL == args) {
-		printf("cache ADDR wrong\n");
-		return 0;
-	}
-	addr = expr(args,&success);
-	if(false==success)
-		printf("Expression is wrong\n");
-	else
-		pretend_cache_read(addr, 4);
-	return 0;
-}
 
-static int cmd_realcache(char *args) {
-	bool success;
-	int addr;
-	if (NULL == args) {
-		printf("cache ADDR wrong\n");
-		return 0;
-	}
-	addr = expr(args,&success);
-	if(false==success)
-		printf("Expression is wrong\n");
-	else
-		cache_read(addr, 4);
-	return 0;
-}
+
+
 
 
 

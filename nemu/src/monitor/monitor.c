@@ -100,5 +100,5 @@ void restart() {
 
 	/* Initialize Cache */
 	init_cache();
-	init_L2cache();
+
 }

@@ -72,30 +72,6 @@ static void ddr3_read(hwaddr_t addr, void *data) {
 	memcpy(data, rowbufs[rank][bank].buf + col, BURST_LEN);
 }
 
-void update_cacheL2(hwaddr_t addr, void *data, size_t len) {
-	Assert(addr < HW_MEM_SIZE, "update_cache physical address %x is outside of the physical memory!", addr);
-
-	dram_addr temp;
-	temp.addr = addr & ~(len-1);
-	uint32_t rank = temp.rank;
-	uint32_t bank = temp.bank;
-	uint32_t row = temp.row;
-	uint32_t col = temp.col;
-	memcpy(data, &dram[rank][bank][row][col], len);
-}
-
-void update_dram(hwaddr_t addr, void *data, size_t len) {
-	Assert(addr < HW_MEM_SIZE, "update_dram physical address %x is outside of the physical memory!", addr);
-
-	dram_addr temp;
-	temp.addr = addr & ~(len-1);
-	uint32_t rank = temp.rank;
-	uint32_t bank = temp.bank;
-	uint32_t row = temp.row;
-	uint32_t col = temp.col;
-	memcpy(&dram[rank][bank][row][col], data, len);
-}
-
 static void ddr3_write(hwaddr_t addr, void *data, uint8_t *mask) {
 	Assert(addr < HW_MEM_SIZE, "physical address %x is outside of the physical memory!", addr);
 

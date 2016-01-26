@@ -1,6 +1,7 @@
-#include "nemu.h"
+#include "common.h"
 
 uint32_t cache_read(hwaddr_t, size_t);
+
 void cache_write(hwaddr_t, size_t, uint32_t);
 
 /* Memory accessing interfaces */
