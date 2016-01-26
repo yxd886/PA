@@ -12,6 +12,10 @@ make_helper(lgdt);
 make_helper(clc);
 //make_helper(cltd);
 make_helper(cwd);
+make_helper(std);
+
+
+
 //make_helper(stos_b);
 //make_helper(stos_v);
 //make_helper(movs_b);
