@@ -16,7 +16,7 @@ static void do_execute () {
 
 	cpu.SF = MSB(result);
 	
-	OPERAND_W(op_dest, result);
+	OPERAND_W(op_dest,  result);
 
 	print_asm_template2();
 }
