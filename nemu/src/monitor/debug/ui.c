@@ -55,7 +55,7 @@ static struct {
 	char *description;
 	int (*handler) (char *);
 } cmd_table [] = {
-	{ "help", "Display informations about all supported commands", cmd_help },
+	{ "help", " Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
 	{ "si", "single step si for 1 step and si n for n step", cmd_si },
