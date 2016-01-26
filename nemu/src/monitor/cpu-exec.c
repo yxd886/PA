@@ -12,7 +12,6 @@
 #define MAX_INSTR_TO_PRINT 10
 
 int nemu_state = STOP;
-
 int exec(swaddr_t);
 
 char assembly[80];
