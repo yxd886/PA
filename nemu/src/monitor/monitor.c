@@ -106,12 +106,11 @@ void restart() {
 	/*initial EFLAGS*/
 	init_eflags();
 
-
 	/*initial cr0 register */
-		init_cr0();
-	
+	init_cr0();
+
 	/*initial seg register */
-		init_seg();
+	init_seg();
 
 	/*initial tlb */
 	init_tlb();
