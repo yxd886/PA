@@ -28,6 +28,7 @@ static void welcome() {
 static void init_eflags() {
 	cpu.eflags = 0x00000002;
 }
+
 static void init_cr0() {
 	cpu.cr0.protect_enable = 0;
 	cpu.cr0.paging = 0;
