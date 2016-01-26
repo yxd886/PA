@@ -3,6 +3,7 @@
 
 #include "common.h"
 
+
 enum { R_EAX, R_ECX, R_EDX, R_EBX, R_ESP, R_EBP, R_ESI, R_EDI };
 enum { R_AX, R_CX, R_DX, R_BX, R_SP, R_BP, R_SI, R_DI };
 enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
@@ -51,8 +52,72 @@ typedef struct {
 		} ;
 		uint32_t eflags;
 	};
+	struct GDTR{
+		uint32_t base_addr;
+		uint16_t seg_limit;
+	}gdtr;
+	CR0 cr0;
+	CR3 cr3;
+	struct {
+		uint16_t selector;
+		union {
+			struct {
+				uint32_t seg_base1 	:16;
+				uint32_t seg_base2 	:8;
+				uint32_t seg_base3 	:8;
+			};
+			uint32_t seg_base;
+		};
+		union {
+			struct {
+				uint32_t seg_limit1 	:16;
+				uint32_t seg_limit2 	:4;
+				uint32_t seg_limit3 	:12;
+			};
+			uint32_t seg_limit;
+		};
+	}cs, ds, es, ss;;
 } CPU_state;
 
+typedef struct {
+	union {
+		struct {
+			uint32_t seg_limit1	:16;
+			uint32_t seg_base1	:16;
+		};
+		uint32_t val_part1;
+	};
+	union {
+		struct {
+			uint32_t seg_base2 	:8;
+			uint32_t A 		:1;
+			uint32_t TYPE		:3;
+			uint32_t one 		:1;
+			uint32_t DPL		:2;
+			uint32_t P		:1;
+			uint32_t seg_limit2	:4;
+			uint32_t AVL		:1;
+			uint32_t zero		:1;
+			uint32_t X		:1;
+			uint32_t G 		:1;
+			uint32_t seg_base3	:8;
+		};
+		uint32_t val_part2;
+	};
+}SEG_DES;
+
+typedef  union {
+	struct 
+	{
+		uint16_t rpl	:2;
+		uint16_t ti	:1;
+		uint16_t index 	:13;
+	};
+	uint16_t val;
+}SELECTOR;
+
+extern SEG_DES *seg_des;
+extern SELECTOR current_sreg;
 extern CPU_state cpu;
 
 static inline int check_reg_index(int index) {

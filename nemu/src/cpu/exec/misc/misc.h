@@ -8,6 +8,7 @@ make_helper(leave);
 make_helper(ret);
 make_helper(ret_i_w);
 make_helper(cld);
+make_helper(lgdt);
 make_helper(clc);
 //make_helper(cltd);
 make_helper(cwd);

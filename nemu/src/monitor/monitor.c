@@ -11,7 +11,6 @@ void init_regex();
 void init_wp_list();
 void init_ddr3();
 void init_cache();
-void init_L2cache();
 
 FILE *log_fp = NULL;
 
@@ -28,6 +27,17 @@ static void welcome() {
 static void init_eflags() {
 	cpu.eflags = 0x00000002;
 }
+static void init_cr0() {
+	cpu.cr0.protect_enable = 0;
+	cpu.cr0.paging = 0;
+}
+
+static void init_seg() {
+	cpu.cs.seg_base = 0x0;
+	cpu.cs.seg_limit = 0xffffffff;
+}
+
+
 
 void init_monitor(int argc, char *argv[]) {
 	/* Perform some global initialization */
@@ -88,6 +98,14 @@ void restart() {
 #endif
 	/*initial EFLAGS*/
 	init_eflags();
+
+
+	/*initial cr0 register */
+		init_cr0();
+	
+	/*initial seg register */
+		init_seg();
+
 
 	/* Read the entry code into memory. */
 	load_entry();
