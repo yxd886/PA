@@ -15,10 +15,13 @@ void ramdisk_read(uint8_t *, uint32_t, uint32_t);
 
 void create_video_mapping();
 uint32_t get_ucr3();
+PDE* get_updir();
+PDE* get_kpdir();
 
 uint32_t loader() {
 	Elf32_Ehdr *elf;
 	Elf32_Phdr *ph = NULL;
+	PDE *kpdir, *updir;
 	int i;
 	uint8_t buf[4096];
 
@@ -40,7 +43,18 @@ uint32_t loader() {
 	for(i=0; i<elf->e_phnum;i++) {
 		/* Scan the program header table, load each segment into memory */
 		if(ph->p_type == PT_LOAD) {
+			//nemu_assert(get_ucr3()>>12 == 0x136);
+			mm_malloc(ph->p_vaddr, ph->p_memsz);
+			kpdir = get_kpdir();
+			updir = get_updir();
+			kpdir[32].val = updir[32].val;
+
+			//nemu_assert(ph->p_vaddr == 0x8048000);
+			//nemu_assert(ph->p_filesz == 0x200);
+			//nemu_assert(ph->p_offset == 0x0);
 			 ramdisk_read((uint8_t *)(ph->p_vaddr), ph->p_offset, ph->p_filesz);
+			//nemu_assert(i==1 || i==0);
+
 			 memset((void *)(ph->p_vaddr+ph->p_filesz), 0, ph->p_memsz - ph->p_filesz);
 #ifdef IA32_PAGE
 			/* Record the program break for future use. */
@@ -53,7 +67,6 @@ uint32_t loader() {
 	}
 
 	volatile uint32_t entry = elf->e_entry;
-
 #ifdef IA32_PAGE
 	mm_malloc(KOFFSET - STACK_SIZE, STACK_SIZE);
 
